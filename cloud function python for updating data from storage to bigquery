@@ -1,0 +1,33 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+from google.cloud import bigquery
+
+def bigquery_uploaad(
+    event,
+    context,
+    dataset='dataset name',
+    table='table name',
+    ):
+
+    file = event
+    source_file = file['name']
+    uri = 'gs://bucket_name/' + source_file
+    print (file['name'])
+    bigquery_client = bigquery.Client()
+    dataset_ref = bigquery_client.dataset(dataset)
+    job_config = bigquery.LoadJobConfig()
+    job_config.autodetect = True
+    job_config.schema_update_options = \
+        [bigquery.SchemaUpdateOption.ALLOW_FIELD_ADDITION]
+    job_config.create_disposition = \
+        bigquery.job.CreateDisposition.CREATE_IF_NEEDED
+    job_config.write_disposition = \
+        bigquery.WriteDisposition.WRITE_APPEND
+    load_job = bigquery_client.load_table_from_uri(uri,
+        dataset_ref.table(table), job_config=job_config)
+    load_job.result()
+    destination_table = bigquery_client.get_table(dataset_ref.table(table))
+    print (file['name'])
+    print('Loaded {} rows.'.format(destination_table.num_rows))
+    print ('Data uploaded into BigQuery table successfully.')
