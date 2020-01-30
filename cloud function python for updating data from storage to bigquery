@@ -3,7 +3,7 @@
 
 from google.cloud import bigquery
 
-def bigquery_uploaad(
+def bigquery_upload(
     event,
     context,
     dataset='dataset name',
